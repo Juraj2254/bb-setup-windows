@@ -1,5 +1,7 @@
 # bb na Windowsu (Ubuntu / WSL)
 
+**Detaljan vodič korak po korak, s naredbama za kopiranje i provjerama: [VODIC.md](VODIC.md)**
+
 Instalaciju bb-a odradi AI agent (Codex ili Jarvis). Ti pokreneš Ubuntu, jednu naredbu, prijaviš se gdje te
 pita i klikneš što ti kaže.
 
@@ -68,7 +70,7 @@ Ako već imaš Ubuntu u WSL-u, preskoči ovaj korak.
 6. bb, pokretanje i prečac na radnoj površini: `scripts/install-bb-wsl.sh`.
 7. Zajednička memorija, skillovi i uvoz starog konteksta: `scripts/bb-harness.sh`.
 
-Upute za agenta su u [AGENTS.md](AGENTS.md). Bez agenta: [docs/RUCNO.md](docs/RUCNO.md).
+Upute za agenta su u [AGENTS.md](AGENTS.md). Bez agenta: [VODIC.md](VODIC.md) (detaljno) ili [docs/RUCNO.md](docs/RUCNO.md) (kratko).
 Video ručnog postupka: [docs/bb-windows-wsl-480p.mp4](docs/bb-windows-wsl-480p.mp4).
 
 ## Svaki dan
