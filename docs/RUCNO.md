@@ -85,6 +85,7 @@ pregledniku otvori http://localhost:38886.
 | `bb-harness.sh` | Memory plugin, zajednička pravila, skillovi u `~/.bb/skills`, Jarvis ključ za croz-tools, uvoz starog konteksta (i s Windowsa) |
 | `bb-skills.py` | kopira skillove iz Ubuntua i Windows profila u bb (originale ne dira) |
 | `bb-kontekst.py` | skuplja stari kontekst iz Ubuntua i s Windowsa (samo čita, tajne zamaskira) |
+| `bb-projekt.sh VLASNIK/REPO` | GitHub CLI i prijava, klon u `~/projekti/`, git ime i e-mail, projekt u bb-u, skillovi iz `skills/` |
 
 Opcije harnessa: `--dry-run` (samo pokaže plan), `--no-import`, `--no-skills`, `--link-skills` (poveže bb
 skillove natrag u `~/.claude/skills` i `~/.agents/skills`), `--keep-croz-memory`, `--max-projects N`,

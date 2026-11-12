@@ -3,10 +3,19 @@
 #
 #   bash bootstrap.sh          # instalacijski agent je Codex (ChatGPT pretplata)
 #   bash bootstrap.sh jarvis   # instalacijski agent je Jarvis (CROZ Code, treba VPN)
+#   bash bootstrap.sh VLASNIK/REPO [...]   # uz to spoji GitHub projekte (može i s jarvis)
 set -euo pipefail
 cd "$(dirname "$0")"
 . scripts/env.sh
-AGENT="${1:-codex}"
+AGENT=codex
+REPOS=""
+for a in "$@"; do
+  case "$a" in
+    codex|jarvis) AGENT="$a" ;;
+    */*) REPOS="$REPOS $a" ;;
+    *) echo "Upotreba: bash bootstrap.sh [codex|jarvis] [VLASNIK/REPO ...]" >&2; exit 2 ;;
+  esac
+done
 
 grep -qi microsoft /proc/version 2>/dev/null || { echo "✘ Pokreni ovo u Ubuntu prozoru (WSL)." >&2; exit 2; }
 
@@ -16,6 +25,8 @@ if [ -n "$missing" ]; then
   echo "==> Osnovni alati:$missing (upiši svoju Ubuntu lozinku kad je zatraži)"
   sudo apt-get update && sudo apt-get install -y$missing ca-certificates
 fi
+
+for r in $REPOS; do bash scripts/bb-projekt.sh --add "$r"; done
 
 touch "$HOME/.bashrc"
 grep -q 'bb-setup: local bin' "$HOME/.bashrc" || printf '\n# bb-setup: local bin\nexport PATH="$HOME/.local/bin:$PATH"\n' >> "$HOME/.bashrc"
@@ -42,9 +53,5 @@ case "$AGENT" in
     fi
     echo "==> Pokrećem Jarvis (CROZ Code). On nastavlja instalaciju i vodi te kroz korake."
     exec croz-code "$(cat prompts/start.md)"
-    ;;
-  *)
-    echo "Upotreba: bash bootstrap.sh [codex|jarvis]" >&2
-    exit 2
     ;;
 esac

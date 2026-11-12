@@ -13,8 +13,8 @@ Goal, when you are done:
 | Pi | CROZ Code | Jarvis, the CROZ AI gateway (needs CROZ VPN) |
 
 Plus: bb Memory (one memory for all agents), every skill from this computer in bb (Ubuntu and the Windows
-profile), the user's earlier Claude Code / Codex / CROZ Code context imported into that memory, and a **bb**
-shortcut on the Windows desktop.
+profile), the user's earlier Claude Code / Codex / CROZ Code context imported into that memory, a **bb**
+shortcut on the Windows desktop, and every GitHub project the user asked for cloned and added to bb.
 
 ## How to work with the user
 
@@ -114,7 +114,27 @@ Windows into `~/.bb/legacy-context`, adds the earlier projects to bb (Windows fo
 one "Uvoz konteksta" thread per project plus a global one. Those threads write the memories; they take a
 minute or two each.
 
-## Step 7 – Done
+## Step 7 – GitHub projects
+
+Only when `check.sh` shows a `== GitHub projekti` section (the user passed `VLASNIK/REPO` to `bootstrap.sh`)
+or the user names a GitHub repository. For each repository:
+
+```sh
+. scripts/env.sh && bash scripts/bb-projekt.sh --no-login VLASNIK/REPO
+```
+
+It installs the GitHub CLI into `~/.local/bin`, connects git to it, sets the git name and e-mail from the
+GitHub account when they are empty, clones into `~/projekti/<repo>` (or updates the clone) and adds the project
+to bb. Skills in the repository's `skills/` reach every agent through `.bb/skills`. The repository's own
+`AGENTS.md` / `CLAUDE.md` tell the agents how to work there; do not change them.
+
+- Exit code 4: the user signs in. Ask them to open a **new Ubuntu tab** (Ctrl + Shift + T) and run
+  `gh auth login --web --git-protocol https`, press Enter on every question, sign in in the browser and type the
+  code. Verify with `gh auth status`, then run the script again.
+- Exit code 5: this GitHub account has no access. Tell the user the exact message: the repository owner adds
+  their GitHub name under **Settings → Collaborators** and they accept the invitation. Then run it again.
+
+## Step 8 – Done
 
 1. Run `check.sh`. Every line should be ✔.
 2. Tell the user how to see the result: in bb, **Settings → Installed plugins → Memory** lists the memories.
@@ -122,5 +142,7 @@ minute or two each.
    the **Pi** tab (Jarvis Reason), and ask `Što znaš o meni i mojim projektima?`.
 4. Every day: double-click **bb** on the Windows desktop (or open Ubuntu and run `bb-start`). For Pi (CROZ
    Code), turn on the VPN.
+5. If GitHub projects were connected: in bb open the project and click **New thread**. The agents fetch,
+   commit and push by the repository's rules.
 
 End with a short summary in Croatian: what is installed, what the user still has to do (if anything).

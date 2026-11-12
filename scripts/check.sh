@@ -83,6 +83,20 @@ if [ $BB_OK = 1 ]; then
   if [ "${t:-0}" -gt 0 ]; then ok "threadovi Uvoz konteksta: $t (napredak vidiš u bb-u)"; else no "uvoz konteksta → bash scripts/bb-harness.sh"; fi
 fi
 
+PROJ_LIST="$DATA_DIR/bb-setup/projekti.tsv"
+if [ -s "$PROJ_LIST" ]; then
+  echo "== GitHub projekti"
+  if has gh && to 20 gh auth status --hostname github.com >/dev/null 2>&1; then ok "GitHub: prijavljen ($(to 20 gh api user --jq .login 2>/dev/null))"
+  elif has gh; then no "GitHub nije prijavljen → korisnik u drugom prozoru: gh auth login --web --git-protocol https"
+  else no "GitHub CLI → bash scripts/bb-projekt.sh --no-login <repo> (instalira gh)"; fi
+  projects="$([ $BB_OK = 1 ] && to 20 bb project list --json 2>/dev/null || true)"
+  while IFS="$(printf '\t')" read -r repo dir; do
+    [ -n "$repo" ] || continue
+    if [ -d "$dir/.git" ] && printf '%s' "$projects" | grep -qF "\"$dir\""; then ok "$repo → $dir (bb projekt)"
+    else no "$repo → bash scripts/bb-projekt.sh --no-login $repo"; fi
+  done < "$PROJ_LIST"
+fi
+
 echo
 if [ $missing = 0 ]; then echo "Sve je spremno."; exit 0; fi
 echo "Nedostaje: $missing"; exit 1

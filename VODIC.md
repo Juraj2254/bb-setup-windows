@@ -400,6 +400,15 @@ Nova verzija bb-a: **Settings → Updates** → **Update**.
   ```
 
   Windows mapu dodaješ kao `/mnt/c/Users/<ime>/...`. Agenti sami pišu u memoriju dok rade na njoj.
+- **Projekt s GitHuba** (npr. zajednički projekt s kolegom): jedna naredba ga klonira u `~/projekti/`, doda u bb
+  i spoji git s tvojim GitHub računom. Prvi put se prijaviš u GitHub u pregledniku.
+
+  ```sh
+  bash ~/bb-setup-windows-main/scripts/bb-projekt.sh Juraj2254/healthcare-hackaton-idea
+  ```
+
+  Agenti rade po pravilima iz repozitorija (`AGENTS.md`, `CLAUDE.md`, `skills/`) i sami povlače i pushaju
+  promjene. Za privatni repozitorij vlasnik te prvo doda pod **Settings → Collaborators**.
 - **Ponovni uvoz starog konteksta** (npr. nakon puno rada izvan bb-a): pokreni `bb-harness.sh` bez opcija.
   Agenti neće upisati duplikate.
 
@@ -423,6 +432,8 @@ Nova verzija bb-a: **Settings → Updates** → **Update**.
 | Skripta kaže `bb ne odgovara` | `bash ~/bb-setup-windows-main/scripts/install-bb-wsl.sh` (pokrene bb). |
 | Thread **Uvoz konteksta** traži odobrenje | Klikni **Allow**. |
 | Pi ne radi u bb-u | VPN; zatim `~/.local/bin/pi --version` mora ispisati broj; ponovi C8 i C10. |
+| `bb-projekt.sh` izađe s 4 | U novom Ubuntu tabu: `gh auth login --web --git-protocol https`, Enter na svim pitanjima, prijava u pregledniku. |
+| `bb-projekt.sh` izađe s 5 | Vlasnik repozitorija te doda pod **Settings → Collaborators**; prihvati pozivnicu iz e-maila. |
 | Bilo što drugo | `bash ~/bb-setup-windows-main/scripts/check.sh` i napravi ono što piše uz prvi ✘. |
 
 ---
@@ -443,4 +454,5 @@ Nova verzija bb-a: **Settings → Updates** → **Update**.
 | Claude Code, Codex | `~/.local/bin/claude`, `~/.local/bin/codex` |
 | CROZ Code postavke i ključ | `~/.croz-code/agent/` |
 | Skripte instalacije | `~/bb-setup-windows-main/scripts/` |
+| Projekti s GitHuba | `~/projekti/<repo>` (popis: `~/.bb/bb-setup/projekti.tsv`) |
 | Stari Claude i Codex na Windowsu (samo se čitaju) | `C:\Users\<ime>\.claude`, `C:\Users\<ime>\.codex` |

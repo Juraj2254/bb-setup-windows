@@ -60,6 +60,9 @@ Ako već imaš Ubuntu u WSL-u, preskoči ovaj korak.
 Želiš li da instalaciju vodi **Jarvis** (CROZ Code) umjesto Codexa, na kraju naredbe dodaj `jarvis`:
 `bash ~/bb-setup-windows-main/bootstrap.sh jarvis`
 
+Želiš li odmah spojiti i projekt s GitHuba, na kraju naredbe dodaj njegovo ime, npr.
+`bash ~/bb-setup-windows-main/bootstrap.sh Juraj2254/healthcare-hackaton-idea`
+
 ## Što agent napravi
 
 1. Provjeri stanje: `scripts/check.sh`.
@@ -69,6 +72,7 @@ Ako već imaš Ubuntu u WSL-u, preskoči ovaj korak.
 5. Most Pi → CROZ Code: `scripts/bb-pi-most.sh`.
 6. bb, pokretanje i prečac na radnoj površini: `scripts/install-bb-wsl.sh`.
 7. Zajednička memorija, skillovi i uvoz starog konteksta: `scripts/bb-harness.sh`.
+8. GitHub projekti (ako si ih naveo): `scripts/bb-projekt.sh`.
 
 Upute za agenta su u [AGENTS.md](AGENTS.md). Bez agenta: [VODIC.md](VODIC.md) (detaljno) ili [docs/RUCNO.md](docs/RUCNO.md) (kratko).
 Video ručnog postupka: [docs/bb-windows-wsl-480p.mp4](docs/bb-windows-wsl-480p.mp4).
@@ -76,6 +80,19 @@ Video ručnog postupka: [docs/bb-windows-wsl-480p.mp4](docs/bb-windows-wsl-480p.
 ## Svaki dan
 
 Dvoklik na **bb** na radnoj površini. Otvori se preglednik s bb-om. Za agenta Pi (CROZ Code) uključi VPN.
+
+## GitHub projekt na računalu koje već ima bb
+
+U Ubuntu zalijepi (zamijeni ime repozitorija):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Juraj2254/bb-setup-windows/main/scripts/bb-projekt.sh | bash -s -- Juraj2254/healthcare-hackaton-idea
+```
+
+Prvi put se prijaviš u GitHub u pregledniku. Skripta klonira projekt u `~/projekti/`, doda ga u bb i spoji
+git s tvojim GitHub računom. Claude Code, Codex i Pi zatim rade po pravilima iz repozitorija (`AGENTS.md`,
+`CLAUDE.md`, `skills/`) i sami povlače i pushaju promjene. Privatni repozitorij: vlasnik te prvo doda pod
+**Settings → Collaborators**.
 
 ## Ako nešto zapne
 
