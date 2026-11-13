@@ -32,16 +32,20 @@ has()  { command -v "$1" >/dev/null 2>&1; }
 slug() {  # owner/repo from owner/repo, https://github.com/owner/repo(.git) or git@github.com:owner/repo.git
   local s="${1%/}"
   s="${s%.git}"; s="${s#https://github.com/}"; s="${s#http://github.com/}"; s="${s#git@github.com:}"; s="${s#github.com/}"
-  case "$s" in */*) [ "${s#*/*/}" = "$s" ] && { printf '%s\n' "$s"; return 0; } ;; esac
+  if [[ "$s" =~ ^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9_.-]+$ ]] && [[ "${s#*/}" != . && "${s#*/}" != .. ]]; then
+    printf '%s\n' "$s"; return 0
+  fi
   return 1
 }
 
 remember() {  # remember <owner/repo> <dir>
   mkdir -p "$(dirname "$LIST")"
   touch "$LIST"
-  if ! awk -F'\t' -v r="$1" '$1 == r { f = 1 } END { exit !f }' "$LIST"; then
-    printf '%s\t%s\n' "$1" "$2" >> "$LIST"
-  fi
+  local saved
+  saved="$(mktemp "$LIST.XXXXXX")"
+  awk -F'\t' -v r="$1" '$1 != r' "$LIST" > "$saved"
+  printf '%s\t%s\n' "$1" "$2" >> "$saved"
+  mv "$saved" "$LIST"
 }
 
 bb_project_for() {  # print the bb project id whose source path is <dir>
@@ -67,10 +71,11 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --status) MODE=status ;;
     --add) MODE=add ;;
-    --dir) shift; DIR="${1:-}" ;;
+    --dir) [ $# -ge 2 ] && [ -n "$2" ] && [[ "$2" != --* ]] || die 2 "Nakon --dir navedi mapu."; shift; DIR="$1" ;;
     --no-login) LOGIN_OK=0 ;;
-    -h|--help) sed -n '2,12p' "$0" 2>/dev/null || true; exit 0 ;;
-    *) REPO="$(slug "$1")" || die 2 "Nije GitHub repozitorij: $1 (primjer: Juraj2254/healthcare-hackaton-idea)" ;;
+    -h|--help) echo "Upotreba: bb-projekt.sh [--no-login | --add | --status] VLASNIK/REPO [--dir MAPA]"; exit 0 ;;
+    --*) die 2 "Nepoznata opcija: $1" ;;
+    *) [ -z "$REPO" ] || die 2 "Navedi jedan repozitorij po pozivu."; REPO="$(slug "$1")" || die 2 "Nije GitHub repozitorij: $1 (primjer: Juraj2254/healthcare-hackaton-idea)" ;;
   esac
   shift
 done
@@ -89,9 +94,14 @@ fi
 
 [ -n "$REPO" ] || die 2 "Upotreba: bash scripts/bb-projekt.sh VLASNIK/REPO [--dir MAPA]"
 NAME="${REPO#*/}"
+if [ -z "$DIR" ] && [ -f "$LIST" ]; then
+  DIR="$(awk -F'\t' -v r="$REPO" '$1 == r { print $2; exit }' "$LIST")"
+fi
 DIR="${DIR:-$BASE/$NAME}"
 DIR="${DIR%/}"
 case "$DIR" in /*) ;; *) DIR="$PWD/$DIR" ;; esac
+[[ "$DIR" != *$'\t'* && "$DIR" != *$'\n'* ]] || die 2 "Mapa ne smije sadržavati tabulator ni novi red."
+DIR="$(realpath -m -- "$DIR")"
 
 if [ "$MODE" = add ]; then
   remember "$REPO" "$DIR"
@@ -155,15 +165,15 @@ PERM="$(gh repo view "$REPO" --json viewerPermission --jq .viewerPermission 2>/d
   Prihvati pozivnicu (e-mail ili https://github.com/$REPO/invitations), pa ponovno ovu skriptu."
 case "$PERM" in
   ADMIN|MAINTAIN|WRITE) ok "pravo: $PERM (agenti mogu pushati)" ;;
-  *) warn "pravo: $PERM. Agenti mogu čitati, ali ne i pushati. Vlasnik ti treba dati Write." ;;
+  *) die 5 "pravo: $PERM. Za zajednički rad agenata vlasnik ti treba dati Write: https://github.com/$REPO/settings/access" ;;
 esac
 
 # --- 4. klon
 say "4/5 Klon u $DIR"
 if [ -d "$DIR/.git" ]; then
   have="$(slug "$(git -C "$DIR" remote get-url origin 2>/dev/null)" || true)"
-  [ "$have" = "$REPO" ] || die 1 "$DIR je drugi repozitorij ($have). Izaberi drugu mapu: --dir MAPA"
-  git -C "$DIR" fetch --quiet origin || warn "fetch nije uspio"
+  [ "${have,,}" = "${REPO,,}" ] || die 1 "$DIR je drugi repozitorij ($have). Izaberi drugu mapu: --dir MAPA"
+  git -C "$DIR" fetch --quiet origin || die 1 "fetch nije uspio; projekt nije osvježen. Provjeri vezu i ponovi."
   if [ -n "$(git -C "$DIR" status --porcelain)" ]; then
     warn "u mapi ima nespremljenih promjena; ne diram ih"
   elif git -C "$DIR" rev-parse --verify --quiet HEAD >/dev/null && git -C "$DIR" rev-parse --verify --quiet '@{u}' >/dev/null; then
@@ -180,11 +190,23 @@ else
   ok "klonirano"
 fi
 # skillovi iz repozitorija za sve agente: bb čita <projekt>/.bb/skills
-if [ -d "$DIR/skills" ] && [ ! -e "$DIR/.bb/skills" ] && ls "$DIR"/skills/*/SKILL.md >/dev/null 2>&1; then
-  mkdir -p "$DIR/.bb"
-  ln -s ../skills "$DIR/.bb/skills"
+# bb treba stvarnu mapu .bb/skills. Verzionirane datoteke nikad ne prepravljamo.
+if [ -L "$DIR/.bb/skills" ]; then
+  if git -C "$DIR" ls-files --error-unmatch .bb/skills >/dev/null 2>&1; then
+    die 1 "Repozitorij verzionira .bb/skills kao symlink koji bb ne čita. Agent treba premjestiti skillove u stvarnu mapu .bb/skills i postaviti skills → .bb/skills."
+  fi
+  [ -d "$DIR/skills" ] && [ ! -L "$DIR/skills" ] || die 1 "Nema izvorne mape skills za lokalnu poveznicu .bb/skills."
+  rm "$DIR/.bb/skills"
+fi
+if [ -d "$DIR/skills" ] && [ ! -L "$DIR/skills" ] && [ ! -e "$DIR/.bb/skills" ] \
+   && ls "$DIR"/skills/*/SKILL.md >/dev/null 2>&1; then
+  if [ -n "$(git -C "$DIR" ls-files -- .bb/skills)" ]; then
+    die 1 "Nedostaju verzionirani skillovi .bb/skills; sačuvaj lokalne promjene i obnovi ih kroz git."
+  fi
+  mkdir -p "$DIR/.bb/skills"
+  cp -a "$DIR/skills/." "$DIR/.bb/skills/"
   grep -qx '/.bb/skills' "$DIR/.git/info/exclude" 2>/dev/null || printf '/.bb/skills\n' >> "$DIR/.git/info/exclude"
-  ok "skills/ → .bb/skills (samo lokalno)"
+  ok "skills/ kopirano u .bb/skills (samo lokalno)"
 fi
 remember "$REPO" "$DIR"
 
@@ -219,4 +241,4 @@ echo
 for f in AGENTS.md CLAUDE.md .bb/AGENTS.md; do [ -f "$DIR/$f" ] && ok "agenti čitaju $f"; done
 [ -d "$DIR/.bb/skills" ] && ok "skillovi projekta: $(ls -d "$DIR"/.bb/skills/*/ 2>/dev/null | wc -l)"
 printf '\n  Gotovo. U bb-u otvori projekt \033[1m%s\033[0m i klikni New thread.\n' "$NAME"
-printf '  Claude Code, Codex i Pi rade po pravilima iz repozitorija i sami pushaju na GitHub kao %s.\n' "$LOGIN"
+printf '  Claude Code, Codex i Pi dijele pravila i skillove projekta; git je spojen kao %s.\n' "$LOGIN"

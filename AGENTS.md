@@ -125,14 +125,17 @@ or the user names a GitHub repository. For each repository:
 
 It installs the GitHub CLI into `~/.local/bin`, connects git to it, sets the git name and e-mail from the
 GitHub account when they are empty, clones into `~/projekti/<repo>` (or updates the clone) and adds the project
-to bb. Skills in the repository's `skills/` reach every agent through `.bb/skills`. The repository's own
+to bb. Project skills reach every agent through a real `.bb/skills/` directory. In the Healthcare project,
+`skills` points to `.bb/skills`; the script leaves those tracked files unchanged. For a repository that only
+has a real `skills/` directory, the script creates a local copy in `.bb/skills/` on first connection.
+The repository's own
 `AGENTS.md` / `CLAUDE.md` tell the agents how to work there; do not change them.
 
 - Exit code 4: the user signs in. Ask them to open a **new Ubuntu tab** (Ctrl + Shift + T) and run
   `gh auth login --web --git-protocol https`, press Enter on every question, sign in in the browser and type the
   code. Verify with `gh auth status`, then run the script again.
-- Exit code 5: this GitHub account has no access. Tell the user the exact message: the repository owner adds
-  their GitHub name under **Settings → Collaborators** and they accept the invitation. Then run it again.
+- Exit code 5: this GitHub account lacks access or Write permission. The repository owner grants Write
+  under **Settings → Collaborators** and the user accepts the invitation. Then run it again.
 
 ## Step 8 – Done
 

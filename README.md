@@ -94,6 +94,10 @@ git s tvojim GitHub računom. Claude Code, Codex i Pi zatim rade po pravilima iz
 `CLAUDE.md`, `skills/`) i sami povlače i pushaju promjene. Privatni repozitorij: vlasnik te prvo doda pod
 **Settings → Collaborators**.
 
+Za povezivanje već postojeće mape dodaj `--dir PUTANJA`. Skripta zapamti tu mapu, a ponovni poziv sačuva
+nezavršene lokalne promjene. Za push treba pravo **Write**. Zajednički skillovi Healthcare projekta već su
+verzionirani u stvarnoj mapi `.bb/skills/`, uz poveznicu `skills` na nju; skripta ih ne prepravlja.
+
 ## Ako nešto zapne
 
 - Gdje je instalacija: `bash ~/bb-setup-windows-main/scripts/check.sh`

@@ -44,12 +44,13 @@ svaki korak kad prođe njegova provjera.
 - [ ] Virtualizacija je uključena. **Klik**: **Ctrl + Shift + Esc** → **Performance** → **CPU** → dolje desno
       **Virtualization: Enabled**. Ako piše Disabled, vidi [H](#h-ako-nešto-ne-radi).
 
-### A3. Pristup repozitoriju (repo je privatan)
+### A3. Pristup projektu
 
-Ako instaliraš na tuđem računalu, prvo daj pristup toj osobi:
+Repozitorij instalacije `bb-setup-windows` je javan. Za zajednički privatni Healthcare projekt prvo daj
+pristup toj osobi:
 
-- [ ] **Klik**: https://github.com/Juraj2254/bb-setup-windows → **Settings** → **Collaborators** →
-      **Add people** → upiši GitHub korisničko ime → **Add**. Osoba prihvati pozivnicu iz e-maila.
+- [ ] **Klik**: https://github.com/Juraj2254/healthcare-hackaton-idea → **Settings** → **Collaborators** →
+      **Add people** → upiši GitHub korisničko ime → dodijeli **Write**. Osoba prihvati pozivnicu iz e-maila.
 
 Druga mogućnost: ti preuzmeš ZIP (korak 3) i pošalješ ga (Teams, e-mail); osoba ga spremi u **Preuzimanja**.
 
@@ -77,6 +78,11 @@ Ako želiš da instalaciju vodi agent, napravi samo ovo, a zatim idi na [D. Zavr
        klikni link. Ako Codex pita vjeruješ li mapi, pritisni Enter.
 5. [ ] Razgovaraj s agentom na hrvatskom. Kad traži prijavu ili klik, učini to i napiši `gotovo`.
 6. [ ] Na kraju agent mora reći da `check.sh` ima sve ✔. Ipak prođi [D](#d-završna-provjera) i [E](#e-testovi-u-bb-u).
+
+Za instalaciju s projektom Healthcare u naredbi iz koraka 2 na kraj dodaj
+`Juraj2254/healthcare-hackaton-idea`. Agent će sam klonirati projekt, spojiti git i dodati projekt u bb.
+U pregledniku potvrdi GitHub prijavu svojim računom; za zajednički rad Juraj ti treba dati **Write** pristup
+projektu, a ti prihvati pozivnicu. Konfiguraciju agenata ne uređuješ ručno.
 
 ---
 

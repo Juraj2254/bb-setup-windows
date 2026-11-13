@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "repo-sync": {
+      "source": "https://github.com/Juraj2254/healthcare-hackaton-idea",
+      "source_path": ".bb/skills/repo-sync",
+      "revision": "e91f1939034570fd4b700da225b1d6cd59747fe0"
+    }
+  }
+}
